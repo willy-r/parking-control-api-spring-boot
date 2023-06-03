@@ -16,7 +16,6 @@
 ## 🎯 Objective
 
 The mainly objective of this application is to create an API of a Parking Control focusing on parking spot resource. To achieve that, I use some Spring Environment tools like:
-- 
 - Spring MVC
 - Spring Data
 - Spring Validation

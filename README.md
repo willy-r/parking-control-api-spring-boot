@@ -66,7 +66,6 @@ PostgreSQL's service are not exposed at any port to the host machine for simulat
 ## 🚧 Troubleshooting
 
 - Make sure you have these ports available before running the projects:
-    - **`3000`**: React development server
     - **`8000`**: Used by Spring Boot API
     - **`8080`**: Adminer
 - Make sure your Docker daemon is running!

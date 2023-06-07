@@ -1,18 +1,14 @@
 package com.api.parkingcontrol.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "parking_spot")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+@Data
 public class ParkingSpot {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

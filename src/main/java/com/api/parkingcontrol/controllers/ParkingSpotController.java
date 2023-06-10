@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -20,6 +22,21 @@ public class ParkingSpotController {
 
     public ParkingSpotController(ParkingSpotService parkingSpotService) {
         this.parkingSpotService = parkingSpotService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ParkingSpot>> getAll() {
+        List<ParkingSpot> parkingSpotsDatabase = parkingSpotService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(parkingSpotsDatabase);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getById(@PathVariable UUID id) {
+        var parkingSpotOptional = parkingSpotService.findById(id);
+        if (parkingSpotOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parking Spot not found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(parkingSpotOptional);
     }
 
     @PostMapping

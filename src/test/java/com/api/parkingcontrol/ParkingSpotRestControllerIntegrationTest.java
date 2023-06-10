@@ -6,7 +6,6 @@ import com.api.parkingcontrol.repositories.ParkingSpotRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +19,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK, classes = ParkingControlApplication.class)
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class ParkingSpotRestIntegrationTest {
+public class ParkingSpotRestControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
 
@@ -41,6 +41,46 @@ public class ParkingSpotRestIntegrationTest {
     @After
     public void tearDown() {
         parkingSpotRepository.deleteAll();
+    }
+
+    @Test
+    public void givenParkingSpots_whenGetParkingSpots_thenStatus200() throws Exception {
+        var parkingSpotDTO1 = new ParkingSpotDTO("2058", "RRS8562", "Audi", "Q5", "Black", "Test", "265", "8");
+        var parkingSpotDTO2 = new ParkingSpotDTO("2057", "RRS8561", "Audi", "Q5", "Black", "Test", "264", "7");
+        ParkingSpot parkingSpotEntity1 = createTestParkingSpot(parkingSpotDTO1);
+        ParkingSpot parkingSpotEntity2 = createTestParkingSpot(parkingSpotDTO2);
+
+        mvc.perform(get("/parking-spot").contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(equalTo(2))))
+            .andExpect(jsonPath("$[0].parkingSpotNumber", is(parkingSpotEntity1.getParkingSpotNumber())))
+            .andExpect(jsonPath("$[1].parkingSpotNumber", is(parkingSpotEntity2.getParkingSpotNumber())));
+
+        List<ParkingSpot> allParkingSpot = parkingSpotRepository.findAll();
+        assertThat(allParkingSpot).hasSize(2);
+    }
+
+    @Test
+    public void givenParkingSpotId_whenGetParkingSpot_thenStatus200() throws Exception {
+        var parkingSpotDTO = new ParkingSpotDTO("2058", "RRS8562", "Audi", "Q5", "Black", "Test", "265", "8");
+        ParkingSpot parkingSpotEntity = createTestParkingSpot(parkingSpotDTO);
+
+        mvc.perform(get("/parking-spot/" + parkingSpotEntity.getId()).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id", is(parkingSpotEntity.getId().toString())));
+
+        List<ParkingSpot> allParkingSpot = parkingSpotRepository.findAll();
+        assertThat(allParkingSpot).hasSize(1);
+    }
+
+    @Test
+    public void givenNonExistingParkingSpotId_whenGetParkingSpot_thenStatus404() throws Exception {
+        mvc.perform(get("/parking-spot/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
     }
 
     @Test
@@ -71,7 +111,8 @@ public class ParkingSpotRestIntegrationTest {
         parkingSpotDTO.setLicensePlateCar(parkingSpotEntity.getLicensePlateCar());
         String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
         mvc.perform(post("/parking-spot").contentType(MediaType.APPLICATION_JSON).content(requestJson))
-            .andExpect(status().isConflict());
+            .andExpect(status().isConflict())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
     }
 
     @Test
@@ -82,7 +123,8 @@ public class ParkingSpotRestIntegrationTest {
         parkingSpotDTO.setParkingSpotNumber(parkingSpotEntity.getParkingSpotNumber());
         String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
         mvc.perform(post("/parking-spot").contentType(MediaType.APPLICATION_JSON).content(requestJson))
-            .andExpect(status().isConflict());
+            .andExpect(status().isConflict())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
     }
 
     @Test
@@ -94,7 +136,8 @@ public class ParkingSpotRestIntegrationTest {
         parkingSpotDTO.setBlock(parkingSpotEntity.getBlock());
         String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
         mvc.perform(post("/parking-spot").contentType(MediaType.APPLICATION_JSON).content(requestJson))
-            .andExpect(status().isConflict());
+            .andExpect(status().isConflict())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
     }
 
     private ParkingSpot createTestParkingSpot(ParkingSpotDTO parkingSpotDTO) {

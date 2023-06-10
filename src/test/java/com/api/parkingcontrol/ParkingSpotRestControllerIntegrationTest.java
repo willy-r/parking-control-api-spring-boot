@@ -23,8 +23,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -137,6 +136,25 @@ public class ParkingSpotRestControllerIntegrationTest {
         String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
         mvc.perform(post("/parking-spot").contentType(MediaType.APPLICATION_JSON).content(requestJson))
             .andExpect(status().isConflict())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
+    }
+
+    @Test
+    public void givenParkingSpotId_whenDeleteParkingSpot_thenDeleteParkingSpot() throws Exception {
+        var parkingSpotDTO = new ParkingSpotDTO("2058", "RRS8562", "Audi", "Q5", "Black", "Test", "265", "8");
+        ParkingSpot parkingSpotEntity = createTestParkingSpot(parkingSpotDTO);
+
+        mvc.perform(delete("/parking-spot/" + parkingSpotEntity.getId()).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        List<ParkingSpot> allParkingSpot = parkingSpotRepository.findAll();
+        assertThat(allParkingSpot).hasSize(0);
+    }
+
+    @Test
+    public void givenNonExistingParkingSpotId_whenDeleteParkingSot_thenStatus404() throws Exception {
+        mvc.perform(delete("/parking-spot/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound())
             .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
     }
 

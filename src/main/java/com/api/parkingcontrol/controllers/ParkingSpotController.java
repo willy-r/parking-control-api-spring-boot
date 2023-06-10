@@ -57,4 +57,13 @@ public class ParkingSpotController {
         var parkingSpotDatabase = parkingSpotService.save(parkingSpotEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body(parkingSpotDatabase);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> delete(@PathVariable UUID id) {
+        if (parkingSpotService.findById(id).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parking Spot not found");
+        }
+        parkingSpotService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }

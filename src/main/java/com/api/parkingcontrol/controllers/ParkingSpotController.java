@@ -15,15 +15,25 @@ import java.time.ZoneId;
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/parking-spot")
-public class ParkingSportController {
+public class ParkingSpotController {
     final ParkingSpotService parkingSpotService;
 
-    public ParkingSportController(ParkingSpotService parkingSpotService) {
+    public ParkingSpotController(ParkingSpotService parkingSpotService) {
         this.parkingSpotService = parkingSpotService;
     }
 
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody @Valid ParkingSpotDTO parkingSpotDTO) {
+        if (parkingSpotService.existsByLicensePlateCar(parkingSpotDTO.getLicensePlateCar())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: License Plate Car is already in use");
+        }
+        if (parkingSpotService.existsByParkingSpotNumber(parkingSpotDTO.getParkingSpotNumber())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Parking Spot is already in use");
+        }
+        if (parkingSpotService.existsByApartmentAndBlock(parkingSpotDTO.getApartment(), parkingSpotDTO.getBlock())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Parking Spot already registered for this apartment/block");
+        }
+
         var parkingSpotEntity = new ParkingSpot();
         BeanUtils.copyProperties(parkingSpotDTO, parkingSpotEntity);
         parkingSpotEntity.setRegistrationDate(LocalDateTime.now(ZoneId.of("UTC")));

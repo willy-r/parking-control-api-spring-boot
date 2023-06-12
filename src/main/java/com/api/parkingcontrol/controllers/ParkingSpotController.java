@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -32,7 +33,7 @@ public class ParkingSpotController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getById(@PathVariable UUID id) {
-        var parkingSpotOptional = parkingSpotService.findById(id);
+        Optional<ParkingSpot> parkingSpotOptional = parkingSpotService.findById(id);
         if (parkingSpotOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parking Spot not found");
         }
@@ -65,5 +66,19 @@ public class ParkingSpotController {
         }
         parkingSpotService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> update(@PathVariable UUID id, @RequestBody @Valid ParkingSpotDTO parkingSpotDTO) {
+        Optional<ParkingSpot> parkingSpotOptional = parkingSpotService.findById(id);
+        if (parkingSpotOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parking Spot not found");
+        }
+        var parkingSpotEntity = new ParkingSpot();
+        BeanUtils.copyProperties(parkingSpotDTO, parkingSpotEntity);
+        parkingSpotEntity.setId(parkingSpotOptional.get().getId());
+        parkingSpotEntity.setRegistrationDate(parkingSpotOptional.get().getRegistrationDate());
+        var parkingSpotDatabase = parkingSpotService.save(parkingSpotEntity);
+        return ResponseEntity.status(HttpStatus.OK).body(parkingSpotDatabase);
     }
 }

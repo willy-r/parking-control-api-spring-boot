@@ -158,6 +158,50 @@ public class ParkingSpotRestControllerIntegrationTest {
             .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
     }
 
+    @Test
+    public void givenParkingSpotIdIdWithValidInput_whenUpdateParkingSpot_thenUpdateParkingSpot() throws Exception {
+        var parkingSpotDTO = new ParkingSpotDTO("2058", "RRS8562", "Audi", "Q5", "Black", "Test", "265", "8");
+        ParkingSpot parkingSpotEntity = createTestParkingSpot(parkingSpotDTO);
+
+        parkingSpotDTO.setParkingSpotNumber("2057");
+        String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
+        mvc.perform(put("/parking-spot/" + parkingSpotEntity.getId()).contentType(MediaType.APPLICATION_JSON).content(requestJson))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+
+        List<ParkingSpot> allParkingSpot = parkingSpotRepository.findAll();
+        assertThat(allParkingSpot).extracting(ParkingSpot::getParkingSpotNumber).containsOnly(parkingSpotDTO.getParkingSpotNumber());
+        assertThat(allParkingSpot).extracting(ParkingSpot::getId).containsOnly(parkingSpotEntity.getId());
+    }
+
+    @Test
+    public void givenParkingSpotIdIdWithInvalidInput_whenUpdateParkingSpot_thenStatus400() throws Exception {
+        var parkingSpotDTO = new ParkingSpotDTO("2058", "RRS8562", "Audi", "Q5", "Black", "Test", "265", "8");
+        ParkingSpot parkingSpotEntity = createTestParkingSpot(parkingSpotDTO);
+
+        parkingSpotDTO.setParkingSpotNumber("");
+        String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
+        mvc.perform(put("/parking-spot/" + parkingSpotEntity.getId()).contentType(MediaType.APPLICATION_JSON).content(requestJson))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void givenNonExistingParkingSpotId_whenUpdateParkingSpot_thenStatus404() throws Exception {
+        var parkingSpotDTO = new ParkingSpotDTO("2058", "RRS8562", "Audi", "Q5", "Black", "Test", "265", "8");
+        String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
+        mvc.perform(put("/parking-spot/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON).content(requestJson))
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
+    }
+
+    @Test
+    public void givenNonExistingParkingSpotIdWithInvalidInput_whenUpdateParkingSpot_thenStatus400() throws Exception {
+        var parkingSpotDTO = new ParkingSpotDTO("", "RRS8562", "Audi", "Q5", "Black", "Test", "265", "8");
+        String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
+        mvc.perform(put("/parking-spot/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON).content(requestJson))
+            .andExpect(status().isBadRequest());
+    }
+
     private ParkingSpot createTestParkingSpot(ParkingSpotDTO parkingSpotDTO) {
         var parkingSpotEntity = new ParkingSpot();
         BeanUtils.copyProperties(parkingSpotDTO, parkingSpotEntity);

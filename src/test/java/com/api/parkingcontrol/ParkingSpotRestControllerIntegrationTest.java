@@ -52,12 +52,11 @@ public class ParkingSpotRestControllerIntegrationTest {
         mvc.perform(get("/parking-spot").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$", hasSize(equalTo(2))))
-            .andExpect(jsonPath("$[0].parkingSpotNumber", is(parkingSpotEntity1.getParkingSpotNumber())))
-            .andExpect(jsonPath("$[1].parkingSpotNumber", is(parkingSpotEntity2.getParkingSpotNumber())));
+            .andExpect(jsonPath("$.content", hasSize(equalTo(2))));
 
         List<ParkingSpot> allParkingSpot = parkingSpotRepository.findAll();
         assertThat(allParkingSpot).hasSize(2);
+        assertThat(allParkingSpot).extracting(ParkingSpot::getParkingSpotNumber).isEqualTo(List.of("2058", "2057"));
     }
 
     @Test
@@ -79,7 +78,7 @@ public class ParkingSpotRestControllerIntegrationTest {
         mvc.perform(get("/parking-spot/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isNotFound())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class ParkingSpotRestControllerIntegrationTest {
         String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
         mvc.perform(post("/parking-spot").contentType(MediaType.APPLICATION_JSON).content(requestJson))
             .andExpect(status().isConflict())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -123,7 +122,7 @@ public class ParkingSpotRestControllerIntegrationTest {
         String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
         mvc.perform(post("/parking-spot").contentType(MediaType.APPLICATION_JSON).content(requestJson))
             .andExpect(status().isConflict())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -136,7 +135,7 @@ public class ParkingSpotRestControllerIntegrationTest {
         String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
         mvc.perform(post("/parking-spot").contentType(MediaType.APPLICATION_JSON).content(requestJson))
             .andExpect(status().isConflict())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -155,7 +154,7 @@ public class ParkingSpotRestControllerIntegrationTest {
     public void givenNonExistingParkingSpotId_whenDeleteParkingSot_thenStatus404() throws Exception {
         mvc.perform(delete("/parking-spot/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
@@ -191,7 +190,7 @@ public class ParkingSpotRestControllerIntegrationTest {
         String requestJson = new ObjectMapper().writeValueAsString(parkingSpotDTO);
         mvc.perform(put("/parking-spot/" + UUID.randomUUID()).contentType(MediaType.APPLICATION_JSON).content(requestJson))
             .andExpect(status().isNotFound())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN));
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test

@@ -2,9 +2,13 @@ package com.api.parkingcontrol.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ParkingSpotDTO {
     @NotBlank
     private String parkingSpotNumber;
@@ -23,15 +27,4 @@ public class ParkingSpotDTO {
     private String apartment;
     @NotBlank
     private String block;
-
-    public ParkingSpotDTO(String parkingSpotNumber, String licensePlateCar, String brandCar, String modelCar, String colorCar, String responsibleName, String apartment, String block) {
-        this.parkingSpotNumber = parkingSpotNumber;
-        this.licensePlateCar = licensePlateCar;
-        this.brandCar = brandCar;
-        this.modelCar = modelCar;
-        this.colorCar = colorCar;
-        this.responsibleName = responsibleName;
-        this.apartment = apartment;
-        this.block = block;
-    }
 }

@@ -52,6 +52,30 @@ public class ParkingSpotService {
         return parkingSpotRepository.save(parkingSpotEntity);
     }
 
+    @Transactional
+    public void delete(UUID id) {
+        findById(id);
+        parkingSpotRepository.deleteById(id);
+    }
+
+    @Transactional
+    public ParkingSpot update(UUID id, ParkingSpotDTO parkingSpotDTO) {
+        var parkingSpotEntity = findById(id);
+        updateData(parkingSpotEntity, parkingSpotDTO);
+        return parkingSpotRepository.save(parkingSpotEntity);
+    }
+
+    private void updateData(ParkingSpot parkingSpotEntity, ParkingSpotDTO parkingSpotDTO) {
+        parkingSpotEntity.setParkingSpotNumber(parkingSpotDTO.getParkingSpotNumber());
+        parkingSpotEntity.setLicensePlateCar(parkingSpotDTO.getLicensePlateCar());
+        parkingSpotEntity.setBrandCar(parkingSpotDTO.getBrandCar());
+        parkingSpotEntity.setModelCar(parkingSpotDTO.getModelCar());
+        parkingSpotEntity.setColorCar(parkingSpotDTO.getColorCar());
+        parkingSpotEntity.setResponsibleName(parkingSpotDTO.getResponsibleName());
+        parkingSpotEntity.setApartment(parkingSpotDTO.getApartment());
+        parkingSpotEntity.setBlock(parkingSpotDTO.getBlock());
+    }
+
     public boolean existsByLicensePlateCar(String licensePlateCar) {
         return parkingSpotRepository.existsByLicensePlateCar(licensePlateCar);
     }
@@ -62,16 +86,5 @@ public class ParkingSpotService {
 
     public boolean existsByApartmentAndBlock(String apartment, String block) {
         return parkingSpotRepository.existsByApartmentAndBlock(apartment, block);
-    }
-
-    @Transactional
-    public void delete(UUID id) {
-        findById(id);
-        parkingSpotRepository.deleteById(id);
-    }
-
-    @Transactional
-    public ParkingSpot update(UUID id, ParkingSpotDTO parkingSpotDTO) {
-
     }
 }

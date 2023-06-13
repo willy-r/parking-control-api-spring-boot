@@ -2,6 +2,18 @@ version: '3.9'
 name: parking-control
 
 services:
+  spring-api:
+    build:
+      context: ../
+      dockerfile: ./docker/dockerfile.spring.dev
+    ports:
+      - 8000:8000
+    depends_on:
+      db-postgresql:
+        condition: service_healthy
+    networks:
+      - app-network
+
   db-postgresql:
     image: postgres:15.2-alpine
     healthcheck:
